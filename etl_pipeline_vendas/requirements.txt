@@ -1,0 +1,11 @@
+# Extracao
+requests>=2.31.0
+
+# Transformacao (Motor de processamento de alta performance)
+polars>=0.20.0
+
+# Dependencia do Polars para ler/escrever arquivos Parquet (padrao de Data Lake)
+pyarrow>=15.0.0
+
+# Gerenciamento de variaveis de ambiente (para o futuro .env)
+python-dotenv>=1.0.0

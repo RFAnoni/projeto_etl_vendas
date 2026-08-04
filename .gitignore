@@ -1,0 +1,13 @@
+# Ignora os ambientes virtuais de qualquer subprojeto
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo   
+
+# Ignora os arquivos de variáveis de ambiente de qualquer subprojeto
+.env
+
+# Ignora os arquivos de dados locais do Data Lake (mantém as pastas vazias)
+etl_pipeline_vendas/data/**/*.json
+etl_pipeline_vendas/data/**/*.parquet
