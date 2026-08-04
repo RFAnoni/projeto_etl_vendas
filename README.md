@@ -2,7 +2,8 @@
 
 # 🚀 Projeto ETL Vendas: Do Excel Manual a um Pipeline Orquestrado
 
-![Visualizações](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FRFAnoni%2Fprojeto_etl_vendas&count_bg=%23007EC6&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=visualiza%C3%A7%C3%B5es&edge_flat=false)
+![Visualizações](https://api.visitorbadge.io/api/VisitorHit?user=RFAnoni&repo=projeto_etl_vendas&countColor=%237B1E7A)
+
 
 <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
 <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
