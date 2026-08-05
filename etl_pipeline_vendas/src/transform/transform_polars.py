@@ -6,37 +6,27 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
 def processar_camada_bronze(caminho_json: Path):
     if not caminho_json.exists():
-        raise FileNotFoundError(f"Erro: O arquivo {caminho_json} não foi encontrado na Camada Bronze.")
+        raise FileNotFoundError(f"[Error]: O arquivo {caminho_json} não foi encontrado na Camada Bronze.")
         
-    print(f"\n[1] Lendo dados da camada Bronze: {caminho_json.name}")
+    print(f"\n[INFO] Lendo dados da camada Bronze: {caminho_json.name}")
     df_raw = pl.read_json(caminho_json)
-    
-    # --- VERIFICAÇÃO ANTES DO EXPLODE ---
-    linhas_originais = df_raw.height
-    print(f"-> Quantidade de Vendas originais (linhas): {linhas_originais}")
     
     colunas_struct = [
         coluna for coluna, tipo in df_raw.schema.items() 
         if isinstance(tipo, pl.Struct)
     ]
     
-    # 2. Desempacota as colunas do tipo Struct
+    print(f"[INFO] Desempacotando colunas Struct: {colunas_struct}")
     df_tratado = df_raw.unnest(colunas_struct)
     
    # 3. Explode a lista de parcelas e desempacota
+    print("[INFO] Normalizando lista de parcelas (explode)...")
     df_final = (
         df_tratado
         .explode("parcelas_cronograma", empty_as_null=True)
         .unnest("parcelas_cronograma")
     )
-    # --- VERIFICAÇÃO APÓS O EXPLODE ---
-    linhas_finais = df_final.height
-    print(f"-> Quantidade após explode (linhas de parcelas): {linhas_finais}")
-    
-    if linhas_originais > 0:
-        aumento = linhas_finais / linhas_originais
-        print(f"-> O volume de linhas multiplicou em {aumento:.2f}x!")
-    
+    print(f"[INFO] Processamento concluído. Total de registros prontos: {df_final.height}")
     return df_final
 
 if __name__ == "__main__":
@@ -44,7 +34,7 @@ if __name__ == "__main__":
     arquivos_json = list(pasta_bronze.glob("*.json"))
     
     if not arquivos_json:
-        print("Nenhum arquivo JSON encontrado na camada Bronze!")
+        print("[WARN] Nenhum arquivo JSON encontrado na camada Bronze!")
     else:
         # Pega o arquivo modificado mais recentemente
         arquivo_mais_recente = max(arquivos_json, key=lambda x: x.stat().st_mtime)
@@ -64,7 +54,10 @@ if __name__ == "__main__":
         caminho_silver = pasta_silver / f"vendas_silver_{timestamp}.parquet"
         
         # Escreve o DataFrame no disco em formato Parquet
+        print(f"[INFO] Salvando dados otimizados na Camada Silver...")
         df_silver.write_parquet(caminho_silver)
         
         print(f"[SUCESSO] Tabela final (OBT) salva com sucesso em:")
         print(f"{caminho_silver}")
+
+        
