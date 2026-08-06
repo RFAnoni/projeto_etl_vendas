@@ -9,3 +9,9 @@ pyarrow>=15.0.0
 
 # Gerenciamento de variaveis de ambiente (para o futuro .env)
 python-dotenv>=1.0.0
+#conexão com o MYSQL e banco de dados
+SQLAlchemy==2.0.27
+PyMySQL==1.1.0
+python-dotenv==1.0.1
+pandas==2.2.2
+cryptography==42.0.5
