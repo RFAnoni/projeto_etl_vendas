@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import sys
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text ,event
 from sqlalchemy.exc import OperationalError
 from urllib.parse import quote
 
@@ -63,22 +63,52 @@ def carregar_para_mysql():
     uri_conexao = f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
     
     engine = create_engine(uri_conexao)
+
     testar_conexao(engine)
     
     # 3. Inserir os dados no Banco de Dados
+
     nome_tabela = "gold_vendas"
+
     print(f"[INFO] Inserindo {df_silver.height} registros na tabela '{nome_tabela}' no MySQL...")
     
+    colunas_sql = []
 
+    for col_name, dtype in df_silver.schema.items():
+        # Mapeia os tipos do Polars para os tipos do MySQL
+        if dtype == pl.Float64:
+            sql_type = "FLOAT"
+        elif dtype == pl.Int64:
+            sql_type = "BIGINT"
+        elif dtype == pl.Boolean:
+            sql_type = "BOOL"
+        else:
+            sql_type = "TEXT" # Fallback seguro para strings e datas
+                    
+        colunas_sql.append(f"`{col_name}` {sql_type}")
 
-    # Criando a tabela automaticamente scaso não exista
+    colunas_str = ",\n        ".join(colunas_sql)
+
+    query_drop = f"DROP TABLE IF EXISTS {nome_tabela};"
+    query_create = f"""
+    CREATE TABLE {nome_tabela} (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        {colunas_str}
+    );
+    """
+
+    with engine.begin() as conn:
+            conn.execute(text(query_drop))
+            conn.execute(text(query_create))
+                        
+    # Criando a tabela automaticamente caso não exista
     df_silver.write_database(
-        table_name=nome_tabela,
-        connection=uri_conexao,
-        if_table_exists="replace", 
-        engine="sqlalchemy"
+            table_name=nome_tabela,
+            connection=uri_conexao,
+            if_table_exists="append", 
+            engine="sqlalchemy"
     )
-    
+        
     print("[SUCCESS] Carga finalizada com sucesso! Os dados estão disponíveis no MySQL.")
 
 if __name__ == "__main__":
